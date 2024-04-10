@@ -12,7 +12,7 @@ This script will execute the same steps as the manual installation.
 
 1. SSH into your Pwnagotchi and run the following command:
 ``` bash
-git clone https://github.com/c-nagy/pwnagotchi-display-password-plugin
+git clone https://github.com/nothingbutlucas/pwnagotchi-display-password-plugin.git
 cd pwnagotchi-display-password-plugin
 ```
 2. Run the installation script as root:
