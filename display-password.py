@@ -1,9 +1,9 @@
 from pwnagotchi.ui.components import LabeledValue
 from pwnagotchi.ui.view import BLACK
-from time import sleep
 import pwnagotchi.ui.fonts as fonts
 import pwnagotchi.plugins as plugins
 import logging
+import random
 import os
 
 
@@ -15,7 +15,7 @@ class DisplayPassword(plugins.Plugin):
     __description__ = "A plugin to display recently cracked passwords"
 
     def on_loaded(self):
-        logging.info("display-password loaded")
+        logging.info("[DISPLAY-PASSWORD] loaded")
 
     def on_ui_setup(self, ui):
         try:
@@ -89,24 +89,23 @@ class DisplayPassword(plugins.Plugin):
             logging.error(f"[DISPLAY-PASSWORD] Error reading configuration: {e}")
             last_only = False
         try:
-            # Loop to every pot file
-            for file in os.listdir("/root/handshakes"):
-                if file.endswith(".potfile"):
-                    # Read the potfile
-                    with open(f"/root/handshakes/{file}", "r") as file:
-                        lines = file.readlines()
-                        if len(lines) > 0:
-                            if not last_only:
-                                # Loop to every line / password cracked
-                                for line in lines:
-                                    line = ":".join(line.split(":")[2:])
-                                    ui.set("display-password", f"{line}")
-                                    sleep(4)
-                            else:
-                                # Show only the last line / password cracked
-                                line = lines[-1]
-                                line = ":".join(line.split(":")[2:])
-                                ui.set("display-password", f"{line}")
-                                sleep(4)
+            # Choose a random potfile
+            potfiles = os.listdir("/root/handshakes")
+            potfiles = [x for x in potfiles if x.endswith(".potfile")]
+            file = random.choice(potfiles)
+            # Read the potfile
+            with open(f"/root/handshakes/{file}", "r") as file:
+                lines = file.readlines()
+                if len(lines) > 0:
+                    if not last_only:
+                        # Choose a random password to show
+                        line = random.choice(lines)
+                    else:
+                        line = lines[-1]
+                    # Shows only the last password
+                    line = ":".join(line.split(":")[2:])
+                    ui.set("display-password", f"{line}")
+        except RuntimeError as e:
+            logging.debug(f"[DISPLAY-PASSWORD] {e}")
         except Exception as e:
             logging.error(f"[DISPLAY-PASSWORD] {e}")
