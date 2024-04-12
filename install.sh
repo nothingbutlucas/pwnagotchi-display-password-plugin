@@ -41,7 +41,7 @@ function edit_configuration_values() {
 function modify_config_files() {
 	orientation="$1"
 	last_password="$2"
-	# TODO If you know a simple method to write on toml files, please submit a change
+	# TODO: If you know a simple method to write on toml files, please submit a change
 	check_toml_key_exists "main.plugins.display-password.enabled" "$CONFIG_FILE"
 	check_toml_key_exists "main.plugins.display-password.orientation" "$CONFIG_FILE"
 	check_toml_key_exists "main.plugins.display-password.last_only" "$CONFIG_FILE"
@@ -58,12 +58,12 @@ function get_installation_path() {
 	if [ -z "${installation_dir//\"/}" ] || [ "$installation_dir" = true ]; then
 		echo "[ ! ] The installation directory was not found in the configuration file"
 		read -r -p "Please enter the installation directory, press Enter to set '/usr/local/share/pwnagotchi/custom-plugins' or specify yours with absolute path: " installation_dir
-	fi
-	if [ -z "${installation_dir//\"/}" ]; then
-		installation_dir="/usr/local/share/pwnagotchi/custom-plugins"
-	fi
-	edit_configuration_values "main.custom_plugins" "${installation_dir}" "$CONFIG_FILE"
+		if [ -z "${installation_dir//\"/}" ]; then
+			installation_dir="/usr/local/share/pwnagotchi/custom-plugins"
+		fi
+		edit_configuration_values "main.custom_plugins" "${installation_dir}" "$CONFIG_FILE"
 	installation_dir="${installation_dir//\"/}"
+	fi
 }
 
 # Main
