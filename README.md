@@ -45,6 +45,12 @@ Once the above steps are completed, reboot the Pwnagotchi daemon to ensure all c
 ``` bash
 sudo systemctl restart pwnagotchi
 ```
+# Update
+
+1. SSH into your Pwnagotchi and go where you clone the repo originally
+2. Run `git pull`
+3. Be sure to be on the actual branch `git checkout main`. The master branch is from the original repo.
+4. Reboot the Pwnagotchi daemon to ensure all changes are applied
 
 # Screenshot:
 
