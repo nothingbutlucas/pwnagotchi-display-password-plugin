@@ -55,3 +55,9 @@ sudo systemctl restart pwnagotchi
 # Screenshot:
 
 ![display-password.py](/screenshot.jpg?raw=true "display-password.py")
+
+# Contributions / ToDo:
+
+Improvements are more than welcome.
+
+- [ ] We need some kind of gif or something like that to show the actual functionality of the plugin.
