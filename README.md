@@ -35,9 +35,11 @@ This also allow you to update the plugin by running  ```git pull``` on the plugi
 2. Grab the `display-password.py` and `display-password.toml` file from this Github repo and put it into that custom plugins directory.
 3. Edit `/etc/pwnagotchi/config.toml` and change the `main.custom_plugins` variable to point to the custom plugins directory you just created: `main.custom_plugins = "/root/custom_plugins/"`
 4. In the same `/etc/pwnagotchi/config.toml` file, add the following lines to enable the plugin:
-```
-main.plugins.display-password.enabled = true
-main.plugins.display-password.orientation = "horizontal"
+``` bash
+main.plugins.display-password.enabled = true # true or false
+main.plugins.display-password.orientation = "horizontal" # horizontal or vertical
+main.plugins.display-password.position = "30,160" # Depends on screen
+main.plugins.display-password.last_only = false # false will loop to every file and password. true will only display the most recent password from every potfile
 ```
 Once the above steps are completed, reboot the Pwnagotchi daemon to ensure all changes are applied, you can do so with the following command:
 ``` bash

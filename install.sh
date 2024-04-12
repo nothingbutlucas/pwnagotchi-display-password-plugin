@@ -28,8 +28,8 @@ function edit_configuration_values() {
 	# Escape slashes and dots in the value to avoid issues with sed
 	value=$(echo "$value" | sed 's/\//\\\//g')
 	value=$(echo "$value" | sed 's/\./\\\./g')
-	# If the value is true, replace it with the lowercase version and without quotes
-	if [ "$value" = "true" ]; then
+	# If the value is boolean, replace it with the lowercase version and without quotes
+	if [ "$value" = "true" ] || [ "$value" = "false" ]; then
 		sed -i "s/^${key} = .*/${key} = ${value}/" "$config_file"
 	else
 		# Use sed to insert or replace the configuration value
@@ -40,13 +40,16 @@ function edit_configuration_values() {
 
 function modify_config_files() {
 	orientation="$1"
+	last_password="$2"
 	# TODO If you know a simple method to write on toml files, please submit a change
 	check_toml_key_exists "main.plugins.display-password.enabled" "$CONFIG_FILE"
 	check_toml_key_exists "main.plugins.display-password.orientation" "$CONFIG_FILE"
+	check_toml_key_exists "main.plugins.display-password.last_only" "$CONFIG_FILE"
 
 	# Set the configuration values
 	edit_configuration_values "main.plugins.display-password.enabled" true "$CONFIG_FILE"
 	edit_configuration_values "main.plugins.display-password.orientation" "$orientation" "$CONFIG_FILE"
+	edit_configuration_values "main.plugins.display-password.last_only" "$last_password" "$CONFIG_FILE"
 }
 
 function get_installation_path() {
@@ -83,8 +86,14 @@ if [ "${orientation^^}" = "V" ]; then
 else
 	orientation="horizontal"
 fi
+read -r -p "Do you want to see all the passwords or only the last one? [A/l] " last_password
+if [ "${last_password^^}" = "L" ]; then
+	last_password=true
+else
+	last_password=false
+fi
 echo "[ ~ ] Modifying configuration files..."
-modify_config_files $orientation
+modify_config_files $orientation $last_password
 echo "[ * ] Done! Please restart your pwnagotchi daemon to apply changes"
 echo "[ * ] You can do so with"
 echo "[ > ] sudo systemctl restart pwnagotchi"

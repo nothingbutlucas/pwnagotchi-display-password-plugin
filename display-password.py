@@ -1,5 +1,6 @@
 from pwnagotchi.ui.components import LabeledValue
 from pwnagotchi.ui.view import BLACK
+from time import sleep
 import pwnagotchi.ui.fonts as fonts
 import pwnagotchi.plugins as plugins
 import logging
@@ -9,7 +10,7 @@ import os
 class DisplayPassword(plugins.Plugin):
     __author__ = "@nagy_craig"
     __fork_author__ = "@nothingbutlucas"
-    __version__ = "1.1.0"
+    __version__ = "1.2.0"
     __license__ = "GPL3"
     __description__ = "A plugin to display recently cracked passwords"
 
@@ -52,7 +53,9 @@ class DisplayPassword(plugins.Plugin):
                     position_y = int(position_values[1])
                     selected_position = (position_x, position_y)
                 except Exception as e:
-                    logging.error(f"Error reading configuration: {e}")
+                    logging.error(
+                        f"[DISPLAY-PASSWORD] Error reading configuration: {e}"
+                    )
 
             ui.add_element(
                 "display-password",
@@ -76,15 +79,34 @@ class DisplayPassword(plugins.Plugin):
             logging.error(f"[DISPLAY-PASSWORD] {e}")
 
     def on_ui_update(self, ui):
-        logging.debug("[DISPLAY-PASSWORD] Actualizando UI")
+        logging.debug("[DISPLAY-PASSWORD] Updating UI")
         try:
+            if self.options.get("last_only") is True:
+                last_only = True
+            else:
+                last_only = False
+        except Exception as e:
+            logging.error(f"[DISPLAY-PASSWORD] Error reading configuration: {e}")
+            last_only = False
+        try:
+            # Loop to every pot file
             for file in os.listdir("/root/handshakes"):
                 if file.endswith(".potfile"):
+                    # Read the potfile
                     with open(f"/root/handshakes/{file}", "r") as file:
                         lines = file.readlines()
                         if len(lines) > 0:
-                            last_line = lines[-1].split(":")[2:]
-                            last_line = ":".join(last_line)
-                            ui.set("display-password", f"{last_line}")
+                            if not last_only:
+                                # Loop to every line / password cracked
+                                for line in lines:
+                                    line = ":".join(line.split(":")[2:])
+                                    ui.set("display-password", f"{line}")
+                                    sleep(4)
+                            else:
+                                # Show only the last line / password cracked
+                                line = lines[-1]
+                                line = ":".join(line.split(":")[2:])
+                                ui.set("display-password", f"{line}")
+                                sleep(4)
         except Exception as e:
             logging.error(f"[DISPLAY-PASSWORD] {e}")
