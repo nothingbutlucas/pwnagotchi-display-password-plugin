@@ -15,7 +15,9 @@ class DisplayPassword(plugins.Plugin):
     __description__ = "A plugin to display recently cracked passwords"
 
     def on_loaded(self):
-        logging.info("[DISPLAY-PASSWORD] loaded")
+        logging.info("[DISPLAY-PASSWORD] Loading & Deleting duplicated passwords")
+        deleted_duplicated_passwords()
+        logging.debug("[DISPLAY-PASSWORD] Loaded")
 
     def on_ui_setup(self, ui):
         try:
@@ -90,8 +92,7 @@ class DisplayPassword(plugins.Plugin):
             last_only = False
         try:
             # Choose a random potfile
-            potfiles = os.listdir("/root/handshakes")
-            potfiles = [x for x in potfiles if x.endswith(".potfile")]
+            potfiles = get_potfiles()
             file = random.choice(potfiles)
             # Read the potfile
             with open(f"/root/handshakes/{file}", "r") as file:
@@ -101,11 +102,58 @@ class DisplayPassword(plugins.Plugin):
                         # Choose a random password to show
                         line = random.choice(lines)
                     else:
+                        # Shows only the last password
                         line = lines[-1]
-                    # Shows only the last password
                     line = ":".join(line.split(":")[2:])
                     ui.set("display-password", f"{line}")
         except RuntimeError as e:
             logging.debug(f"[DISPLAY-PASSWORD] {e}")
         except Exception as e:
             logging.error(f"[DISPLAY-PASSWORD] {e}")
+
+
+def get_potfiles():
+    """Get all the filenames of the potfiles"""
+    try:
+        potfiles = os.listdir("/root/handshakes")
+        potfiles = [x for x in potfiles if x.endswith(".potfile")]
+    except Exception as e:
+        logging.error(f"[DISPLAY-PASSWORD] Error getting potfiles: {e}")
+        potfiles = []
+
+    return potfiles
+
+
+def deleted_duplicated_passwords():
+    """Delete the duplicated AP:password from all the potfiles"""
+    ap_passwords_dictionary = {}
+    lines_list = []
+    # Loop over the potfiles
+    potfiles = get_potfiles()
+    for file in potfiles:
+        try:
+            # Read the potfile
+            with open(f"/root/handshakes/{file}", "r") as file:
+                lines = file.readlines()
+                # Loop over the lines
+                for line in lines:
+                    original_line = line
+                    line = ":".join(line.split(":")[2:])
+                    ap = line.split(":")[0]
+                    password = line.split(":")[1]
+                    # Check if the password is already in the list
+                    if ap in ap_passwords_dictionary.keys():
+                        if password in ap_passwords_dictionary[ap]:
+                            # If yes, remove it from the file
+                            continue
+                    else:
+                        # If not, add it to the list
+                        ap_passwords_dictionary[ap] = password
+                        lines_list.append(original_line)
+            if lines_list:
+                with open(f"/root/handshakes/{file}", "w") as file:
+                    file.writelines(lines_list)
+        except Exception as e:
+            logging.error(
+                f"[DISPLAY-PASSWORD] Error deleting duplicated passwords: {e}"
+            )
