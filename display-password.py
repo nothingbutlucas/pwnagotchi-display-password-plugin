@@ -15,9 +15,9 @@ class DisplayPassword(plugins.Plugin):
     __description__ = "A plugin to display recently cracked passwords"
 
     def on_loaded(self):
-        logging.info("[DISPLAY-PASSWORD] Loading & Deleting duplicated passwords")
+        logging.debug("[DISPLAY-PASSWORD] Loading & Deleting duplicated passwords")
         deleted_duplicated_passwords()
-        logging.debug("[DISPLAY-PASSWORD] Loaded")
+        logging.info("[DISPLAY-PASSWORD] Loaded")
 
     def on_ui_setup(self, ui):
         try:
@@ -130,28 +130,34 @@ def deleted_duplicated_passwords():
     lines_list = []
     # Loop over the potfiles
     potfiles = get_potfiles()
-    for file in potfiles:
+    for potfile in potfiles:
         try:
             # Read the potfile
-            with open(f"/root/handshakes/{file}", "r") as file:
+            with open(f"/root/handshakes/{potfile}", "r") as file:
                 lines = file.readlines()
                 # Loop over the lines
                 for line in lines:
-                    original_line = line
-                    line = ":".join(line.split(":")[2:])
-                    ap = line.split(":")[0]
-                    password = line.split(":")[1]
-                    # Check if the password is already in the list
-                    if ap in ap_passwords_dictionary.keys():
-                        if password in ap_passwords_dictionary[ap]:
-                            # If yes, remove it from the file
-                            continue
-                    else:
-                        # If not, add it to the list
-                        ap_passwords_dictionary[ap] = password
-                        lines_list.append(original_line)
+                    if line:
+                        original_line = line
+                        try:
+                            line = ":".join(line.split(":")[2:])
+                            ap = line.split(":")[0]
+                            password = line.split(":")[1]
+                            # Check if the password is already in the list
+                            if ap in ap_passwords_dictionary.keys():
+                                if password in ap_passwords_dictionary[ap]:
+                                    # If yes, remove it from the file
+                                    continue
+                            else:
+                                # If not, add it to the list
+                                ap_passwords_dictionary[ap] = password
+                                lines_list.append(original_line)
+                        except Exception as e:
+                            logging.debug(
+                                f"[DISPLAY-PASSWORD] Error reading the file {potfile}, probably the file is empty or has bad formatting: {e}"
+                            )
             if lines_list:
-                with open(f"/root/handshakes/{file}", "w") as file:
+                with open(f"/root/handshakes/{potfile}", "w") as file:
                     file.writelines(lines_list)
         except Exception as e:
             logging.error(
