@@ -1,3 +1,8 @@
+# CURRENTLY ACTIVE AND WORKING ON CODEBERG
+
+Enter [here](https://codeberg.org/nothingbutlucas/pwnagotchi-display-password-plugin) to see the most updated repo.
+
+---
 # display-password.py
 
 Displays the most recent cracked password on the Pwnagotchi display.
